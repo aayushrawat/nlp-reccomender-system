@@ -1,0 +1,8 @@
+pandas
+ast
+streamlit
+requests
+sklearn
+nltk
+numpy
+--extra-index-url https://www.kaggle.com/datasets/tmdb/tmdb-movie-metadata/download?datasetVersionNumber=2
