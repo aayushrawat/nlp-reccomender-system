@@ -1,16 +1,95 @@
-import pickle
+import pandas as pd
+import numpy as np
+import ast
 import streamlit as st
 import requests
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from nltk.stem.porter import PorterStemmer
+
+movie = pd.read_csv("tmdb_5000_movies.csv")
+credit = pd.read_csv("tmdb_5000_credits.csv")
+movie = movie.merge(credit, on = "title")
+movie = movie[["title", "genres", "movie_id", "overview", "cast", "crew", "keywords"]]
+
+
+def normaltext(obj):
+    l = []
+    for i in ast.literal_eval(obj):
+        l.append(i["name"])
+    return l
+
+
+movie["genres"] = movie["genres"].apply(normaltext)
+movie["keywords"] = movie["keywords"].apply(normaltext)
+
+
+def normaltext3(obj):
+    l = []
+    c = 0
+    for i in ast.literal_eval(obj):
+        if c != 3:
+            l.append(i["name"])
+            c += 1
+        else:
+            break
+    return l
+
+
+movie["cast"] = movie["cast"].apply(normaltext3)
+
+
+def getdirector(obj):
+    l = []
+    for i in ast.literal_eval(obj):
+        if i["job"] == "Director":
+            l.append(i["name"])
+            break
+    return l
+
+
+movie["crew"] = movie["crew"].apply(getdirector)
+movie["genres"] = movie["genres"].apply(lambda x: [i.replace(" ", "") for i in x])
+movie["keywords"] = movie["keywords"].apply(lambda x: [i.replace(" ", "") for i in x])
+movie["cast"] = movie["cast"].apply(lambda x: [i.replace(" ", "") for i in x])
+movie["crew"] = movie["crew"].apply(lambda x: [i.replace(" ", "") for i in x])
+backup_df = movie
+
+x = list(movie["overview"])
+
+
+def nikalo(o):
+    if isinstance(o, float):
+        print(o)
+    else:
+        pass
+
+
+movie["overview"] = movie["overview"].fillna(" ")
+movie["overview"] = movie["overview"].apply(lambda x: x.split())
+movie["tags"] = movie["cast"] + movie["keywords"] + movie["overview"] + movie["crew"] + movie["genres"]
+new = movie[["movie_id", "title", "tags"]]
+new["tags"] = new["tags"].apply(lambda x: " ".join(x))
+new["tags"] = new["tags"].apply(lambda x: x.lower())
+
+ps = PorterStemmer()
+
+
+def stem(text):
+    y = []
+    for i in text.split():
+        y.append(ps.stem(i))
+    return " ".join(y)
+
+
+new["tags"] = new["tags"].apply(stem)
+movies = new
+cv = CountVectorizer(max_features = 5000, stop_words = "english")
+vectors = cv.fit_transform(new["tags"]).toarray()
+similarity = cosine_similarity(vectors)
 
 
 st.header('Movie Recommender System')
-movies = pickle.load(open('movies.pkl', 'rb'))
-
-cv = CountVectorizer(max_features = 5000, stop_words = "english")
-vectors = cv.fit_transform(movies["tags"]).toarray()
-similarity = cosine_similarity(vectors)
 
 movie_list = movies['title'].values
 selected_movie = st.selectbox(
@@ -58,8 +137,3 @@ if st.button('Show Recommendation'):
     with col5:
         st.text(recommendations[4][0])
         st.image(recommendations[4][1])
-
-
-
-
-
