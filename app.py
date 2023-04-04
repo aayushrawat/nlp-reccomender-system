@@ -7,8 +7,8 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from nltk.stem.porter import PorterStemmer
 
-cred = "https://raw.githubusercontent.com/aayushrawat/nlp-reccomender-system/main/tmdb_5000_credits.csv"
-mov = "https://raw.githubusercontent.com/aayushrawat/nlp-reccomender-system/main/tmdb_5000_movies.csv"
+cred = "https://raw.githubusercontent.com/aayushrawat/mrs-dataset-files/main/tmdb_5000_credits.csv"
+mov = "https://raw.githubusercontent.com/aayushrawat/mrs-dataset-files/main/tmdb_5000_movies.csv"
 movie = pd.read_csv(mov)
 credit = pd.read_csv(cred)
 movie = movie.merge(credit, on = "title")
