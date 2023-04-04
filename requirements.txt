@@ -1,0 +1,9 @@
+pandas
+ast
+streamlit
+requests
+sklearn
+nltk
+numpy
+--extra-index-url https://drive.google.com/file/d/1L-SYbtYPEtx76lsTi66xtUJLo0-P0Cr3/view?usp=sharing
+--extra-index-url https://drive.google.com/file/d/1-RnBKIliSnwvIgxYZeXD0X2usaQnMXJj/view?usp=share_link
